@@ -29,6 +29,8 @@ h1, h2, h3 {
   text-align: center;
   color: #FFD700;
   margin-bottom: 20px;
+  font-weight: bold; /* ensure 
+  uniform thickness */
 }
 
 /* Select Dropdowns and Inputs */
