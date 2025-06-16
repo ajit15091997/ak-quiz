@@ -23,7 +23,15 @@ body {
   min-height: 90vh;
 }
 
-h1, h2, h3 {
+h1, h2 {
+  text-align: center;
+  color: #FFD700;
+  font-weight: 900; /* ज्यादा मोटा */
+  font-size: 40px;  /* optional: size same रखने के लिए */
+  margin-bottom: 20px;
+}
+
+h3 {
   text-align: center;
   color: #FFD700;
   font-weight: bold;
