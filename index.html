@@ -4,16 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>A.K. Quiz - Home</title>
-  <link rel="stylesheet" href="style.css"> 
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="quiz-container">
-  <!-- ✅ Reformed Heading -->
-  <div class="heading-section">
-    <h1 class="main-title">A.K.</h1>
-    <h1 class="sub-title">MCQ QUIZ APP</h1>
-  </div>
+  <h2 style="text-align:center;">A.K. Quiz</h2>
+  <h1>MCQ Quiz App</h1>
 
   <!-- Quiz Selectors -->
   <div id="selectors">
@@ -36,6 +33,13 @@
       <button id="nextBtn" style="display:none;">Next</button>
     </div>
     <div id="scoreboard" style="margin-top: 10px; font-weight: bold;"></div>
+
+    <!-- Explanation Section -->
+    <div id="explanationSection" style="display:none; margin-top:10px;">
+      <button id="toggleExplanation">Show Explanation</button>
+      <div id="explanationText" style="display:none; margin-top:5px;"></div>
+    </div>
+
     <button id="restart" style="display:none;">Restart Quiz</button>
     <button id="deleteQuestion" style="display:none;">Delete Current Question</button>
     <button id="editQuestion" style="display:none;">Edit Current Question</button>
@@ -49,9 +53,10 @@
     <input type="text" id="newQuestion" placeholder="Question"><br>
     <input type="text" id="option1" placeholder="Option 1"><br>
     <input type="text" id="option2" placeholder="Option 2"><br>
-    <input type=" text" id="option3" placeholder="Option 3"><br>
+    <input type="text" id="option3" placeholder="Option 3"><br>
     <input type="text" id="option4" placeholder="Option 4"><br>
     <input type="text" id="correctAnswer" placeholder="Correct Answer"><br>
+    <input type="text" id="answerExplanation" placeholder="Explanation for Correct Answer"><br>
     <button id="addQuestion">Add Question</button><br><br>
 
     <!-- Supreme Admin Controls -->
@@ -64,10 +69,8 @@
     <h2>Add New Admin</h2>
     <label for="newAdminUsername">Username:</label><br>
     <input type="text" id="newAdminUsername" placeholder="Enter Username"><br>
-    
     <label for="newAdminPassword">Password:</label><br>
     <input type="password" id="newAdminPassword" placeholder="Enter Password"><br>
-    
     <button id="createAdminBtn">Create Admin</button>
     <button id="cancelCreateAdminBtn">Cancel</button>
   </div>
@@ -88,6 +91,7 @@
     <input type="text" id="editOption3"><br>
     <input type="text" id="editOption4"><br>
     <input type="text" id="editCorrectAnswer"><br>
+    <input type="text" id="editExplanation"><br>
     <button id="saveEdit">Save Changes</button>
     <button id="cancelEdit">Cancel</button>
   </div>
