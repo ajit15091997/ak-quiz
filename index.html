@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A.K. Quiz - Home</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="quiz-container">
+    <h2>A.K.</h2>
+    <h1>MCQ QUIZ APP</h1>
+
+    <!-- Quiz Selectors -->
+    <div id="selectors">
+      <select id="subjectSelect">
+        <option value="">Select Subject</option>
+      </select>
+      <select id="chapterSelect" disabled>
+        <option value="">Select Chapter</option>
+      </select>
+      <button id="deleteChapter" style="display:none;">Delete Chapter</button>
+      <button id="deleteSubject" style="display:none;">Delete Subject</button>
+    </div>
+
+    <!-- Quiz Area -->
+    <div id="quizArea" style="display:none;">
+      <div id="question"></div>
+      <div id="options" class="options-container"></div>
+
+      <div id="explanationSection">
+        <div id="explanationText" style="display:none;"></div>
+      </div>
+
+      <div id="navigationButtons">
+        <button id="prevBtn">Previous</button>
+        <button id="nextBtn">Next</button>
+      </div>
+
+      <button id="deleteQuestion">Delete Current Question</button>
+      <button id="editQuestion">Edit Current Question</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" style="display:none;">
+      <h2>Add New Question</h2>
+      <input type="text" id="newSubject" placeholder="Subject Name" />
+      <input type="text" id="newChapter" placeholder="Chapter Name" />
+      <input type="text" id="newQuestion" placeholder="Question" />
+      <input type="text" id="option1" placeholder="Option 1" />
+      <input type="text" id="option2" placeholder="Option 2" />
+      <input type="text" id="option3" placeholder="Option 3" />
+      <input type="text" id="option4" placeholder="Option 4" />
+      <input type="text" id="correctAnswer" placeholder="Correct Answer" />
+      <input type="text" id="answerExplanation" placeholder="Explanation (optional)" />
+      <button id="addQuestion">Add Question</button>
+
+      <button id="addNewAdminBtn" style="display:none;">Add New Admin</button>
+      <div id="addAdminForm" style="display:none;">
+        <input type="text" id="newAdminUsername" placeholder="Enter Username" />
+        <input type="password" id="newAdminPassword" placeholder="Enter Password" />
+        <button id="createAdminBtn">Create Admin</button>
+        <button id="cancelCreateAdminBtn">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Admin Login Form -->
+    <div id="loginForm">
+      <h3>Admin Login</h3>
+      <input type="text" id="username" placeholder="Username"><br>
+      <input type="password" id="password" placeholder="Password"><br>
+      <button id="loginBtn">Login</button>
+      <p id="loginError" style="color:red;"></p>
+    </div>
+
+    <!-- Admin Logout -->
+    <div id="logoutSection" style="display:none;">
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 A.K. Quiz. All rights reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+  </html>
