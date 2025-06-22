@@ -1,16 +1,16 @@
-// ========== Elements ==========
+// =================== Elements ===================
 const subjectSelect = document.getElementById('subjectSelect');
 const chapterSelect = document.getElementById('chapterSelect');
+const adminSubjectSelect = document.getElementById('adminSubjectSelect');
+const adminChapterSelect = document.getElementById('adminChapterSelect');
+
 const questionEl = document.getElementById('question');
 const optionsEl = document.getElementById('options');
 const explanationText = document.getElementById('explanationText');
 const quizArea = document.getElementById('quizArea');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
-const deleteSubject = document.getElementById('deleteSubject');
-const deleteChapter = document.getElementById('deleteChapter');
-const deleteQuestion = document.getElementById('deleteQuestion');
-const editQuestion = document.getElementById('editQuestion');
+const restartBtn = document.getElementById('restart');
 
 const newSubject = document.getElementById('newSubject');
 const newChapter = document.getElementById('newChapter');
@@ -23,6 +23,21 @@ const correctAnswer = document.getElementById('correctAnswer');
 const answerExplanation = document.getElementById('answerExplanation');
 const addQuestionBtn = document.getElementById('addQuestion');
 
+const deleteSubject = document.getElementById('deleteSubject');
+const deleteChapter = document.getElementById('deleteChapter');
+const deleteQuestion = document.getElementById('deleteQuestion');
+const editQuestion = document.getElementById('editQuestion');
+
+const loginForm = document.getElementById('loginForm');
+const username = document.getElementById('username');
+const password = document.getElementById('password');
+const loginBtn = document.getElementById('loginBtn');
+const loginError = document.getElementById('loginError');
+
+const logoutBtn = document.getElementById('logoutBtn');
+const logoutSection = document.getElementById('logoutSection');
+const adminPanel = document.getElementById('adminPanel');
+
 const addNewAdminBtn = document.getElementById('addNewAdminBtn');
 const addAdminForm = document.getElementById('addAdminForm');
 const newAdminUsername = document.getElementById('newAdminUsername');
@@ -30,20 +45,11 @@ const newAdminPassword = document.getElementById('newAdminPassword');
 const createAdminBtn = document.getElementById('createAdminBtn');
 const cancelCreateAdminBtn = document.getElementById('cancelCreateAdminBtn');
 
-const loginForm = document.getElementById('loginForm');
-const logoutSection = document.getElementById('logoutSection');
-const logoutBtn = document.getElementById('logoutBtn');
-const loginBtn = document.getElementById('loginBtn');
-const username = document.getElementById('username');
-const password = document.getElementById('password');
-const loginError = document.getElementById('loginError');
-
-const adminPanel = document.getElementById('adminPanel');
-
+// =================== Variables ===================
 let currentQuestions = [];
 let currentQuestionIndex = 0;
 
-// ========== Admin Login ==========
+// =================== Admin Login ===================
 loginBtn.addEventListener('click', () => {
   const user = username.value.trim();
   const pass = password.value.trim();
@@ -81,7 +87,7 @@ function toggleAdminView(isLoggedIn) {
   }
 }
 
-// ========== Add Question ==========
+// =================== Add Question ===================
 addQuestionBtn.addEventListener('click', async () => {
   const payload = {
     subject: newSubject.value.trim(),
@@ -105,30 +111,35 @@ addQuestionBtn.addEventListener('click', async () => {
 
   if (res.ok) {
     alert('Question added successfully!');
-    [newSubject, newChapter, newQuestion, option1, option2, option3, option4, correctAnswer, answerExplanation].forEach(e => e.value = '');
+    [newSubject, newChapter, newQuestion, option1, option2, option3, option4, correctAnswer, answerExplanation]
+      .forEach(f => f.value = '');
     fetchSubjects();
   } else {
     alert('Error adding question.');
   }
 });
 
-// ========== Fetch Subjects & Chapters ==========
+// =================== Load Subjects ===================
 async function fetchSubjects() {
   const res = await fetch('/api/subjects');
   const subjects = await res.json();
-  subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-  subjects.forEach(sub => {
-    const o = document.createElement('option');
-    o.value = sub;
-    o.innerText = sub;
-    subjectSelect.appendChild(o);
+
+  [subjectSelect, adminSubjectSelect].forEach(sel => {
+    sel.innerHTML = '<option value="">Select Subject</option>';
+    subjects.forEach(sub => {
+      const o = document.createElement('option');
+      o.value = sub;
+      o.innerText = sub;
+      sel.appendChild(o);
+    });
   });
 }
 
-subjectSelect.addEventListener('change', async () => {
-  const subject = subjectSelect.value;
-  chapterSelect.innerHTML = '<option value="">Select Chapter</option>';
-  chapterSelect.disabled = true;
+// =================== Load Chapters ===================
+adminSubjectSelect.addEventListener('change', async () => {
+  const subject = adminSubjectSelect.value;
+  adminChapterSelect.innerHTML = '<option value="">Select Chapter</option>';
+  adminChapterSelect.disabled = true;
   deleteSubject.style.display = 'none';
   deleteChapter.style.display = 'none';
 
@@ -138,27 +149,28 @@ subjectSelect.addEventListener('change', async () => {
       const o = document.createElement('option');
       o.value = ch;
       o.innerText = ch;
-      chapterSelect.appendChild(o);
+      adminChapterSelect.appendChild(o);
     });
-    chapterSelect.disabled = false;
+    adminChapterSelect.disabled = false;
     deleteSubject.style.display = 'inline-block';
   }
 });
 
-chapterSelect.addEventListener('change', async () => {
-  const subject = subjectSelect.value;
-  const chapter = chapterSelect.value;
+adminChapterSelect.addEventListener('change', async () => {
+  const subject = adminSubjectSelect.value;
+  const chapter = adminChapterSelect.value;
   deleteChapter.style.display = chapter ? 'inline-block' : 'none';
 
   if (chapter) {
     currentQuestions = await fetch(`/api/subjects/${subject}/chapters/${chapter}/questions`).then(r => r.json());
     currentQuestionIndex = 0;
     quizArea.style.display = 'block';
+    restartBtn.style.display = 'inline-block';
     loadQuestion();
   }
 });
 
-// ========== Load & Interact with Questions ==========
+// =================== Load & Show Questions ===================
 function loadQuestion() {
   optionsEl.innerHTML = '';
   explanationText.style.display = 'none';
@@ -188,6 +200,7 @@ function loadQuestion() {
   });
 }
 
+// =================== Navigation ===================
 prevBtn.addEventListener('click', () => {
   if (currentQuestionIndex > 0) {
     currentQuestionIndex--;
@@ -202,7 +215,12 @@ nextBtn.addEventListener('click', () => {
   }
 });
 
-// ========== Add Admin ==========
+restartBtn.addEventListener('click', () => {
+  currentQuestionIndex = 0;
+  loadQuestion();
+});
+
+// =================== Add Admin (Supreme Only) ===================
 addNewAdminBtn.addEventListener('click', () => {
   addAdminForm.style.display = 'block';
 });
@@ -212,13 +230,13 @@ cancelCreateAdminBtn.addEventListener('click', () => {
 });
 
 createAdminBtn.addEventListener('click', () => {
-  alert('New admin added (functionality to connect to backend pending)');
+  alert('Admin added (backend logic pending)');
   newAdminUsername.value = '';
   newAdminPassword.value = '';
   addAdminForm.style.display = 'none';
 });
 
-// ========== Init ==========
+// =================== On Load ===================
 window.onload = () => {
   fetchSubjects();
   toggleAdminView(localStorage.getItem('isAdmin') === 'true');
