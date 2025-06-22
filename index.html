@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCQ Quiz App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- HOME SECTION (unchanged) -->
+  <header>
+    <h1>MCQ Quiz App</h1>
+    <!-- Home page content here -->
+  </header>
+
+  <!-- ADMIN PANEL -->
+  <div id="adminPanel" style="display:none;">
+    <section id="addQuestionSection">
+      <h2>Add New Question</h2>
+      <form id="addQuestionForm">
+        <label>Subject:
+          <select id="subjectSelect">
+            <option value="" disabled selected>Select Subject</option>
+          </select>
+        </label>
+        <label>Chapter:
+          <select id="chapterSelect" disabled>
+            <option value="" disabled selected>Select Chapter</option>
+          </select>
+        </label>
+        <button id="deleteSubjectBtn" type="button" style="display:none;">Delete Subject</button>
+        <button id="deleteChapterBtn" type="button" style="display:none;">Delete Chapter</button>
+
+        <label>Question:
+          <textarea id="questionText" required></textarea>
+        </label>
+
+        <div id="optionsContainer">
+          <label>Option A: <input type="text" class="option" required /></label>
+          <label>Option B: <input type="text" class="option" required /></label>
+          <label>Option C: <input type="text" class="option" required /></label>
+          <label>Option D: <input type="text" class="option" required /></label>
+        </div>
+
+        <label>Correct Answer:
+          <select id="correctAnswer" required>
+            <option value="" disabled selected>Select correct option</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+        </label>
+
+        <label>Explanation (optional):
+          <textarea id="explanationText" placeholder="Leave blank if none"></textarea>
+        </label>
+
+        <button id="addQuestionBtn" type="submit">Add Question</button>
+      </form>
+    </section>
+
+    <section id="viewQuestionsSection" style="display:none;">
+      <div id="questionViewer">
+        <h3 id="viewQuestionText"></h3>
+        <div id="viewOptions">
+          <!-- options radio buttons populated here -->
+        </div>
+        <p id="viewExplanation" style="display:none;"></p>
+        <div>
+          <button id="prevBtn" type="button">Previous</button>
+          <button id="nextBtn" type="button">Next</button>
+        </div>
+        <button id="deleteQuestionBtn" type="button">Delete Question</button>
+        <button id="editQuestionBtn" type="button">Edit Question</button>
+      </div>
+    </section>
+
+    <section id="adminMgmtSection" style="display:none;">
+      <button id="showAddAdminFormBtn">Add Admin</button>
+      <form id="addAdminForm" style="display:none;">
+        <label>Username: <input id="newAdminUser" required /></label>
+        <label>Password: <input id="newAdminPass" type="password" required /></label>
+        <button id="saveAdminBtn" type="submit">Create Admin</button>
+      </form>
+    </section>
+
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+      </html>
