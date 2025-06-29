@@ -262,3 +262,6 @@ window.onload = () => {
   fetchSubjects();
   toggleAdminView(false);
 };
+app.get('/', (req, res) => {
+  res.send('🟢 AKQuiz Backend is Running Successfully!');
+});
