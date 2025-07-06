@@ -1,11 +1,5 @@
-// 🌐 BACKEND API BASE URL
 const BASE_URL = "https://akquiz-backend-dsjt.onrender.com";
-
-// 🔐 TOKEN & ROLE
-let token = null;
-let isSupreme = false;
-
-// 📌 UI ELEMENTS
+let token = null, isSupreme = false;
 const subjectSelect = document.getElementById('subjectSelect');
 const chapterSelect = document.getElementById('chapterSelect');
 const quizArea = document.getElementById('quizArea');
@@ -53,61 +47,46 @@ const deleteAdminSection = document.getElementById('deleteAdminSection');
 const adminList = document.getElementById('adminList');
 const deleteSelectedAdminsBtn = document.getElementById('deleteSelectedAdminsBtn');
 
-// 🔁 QUIZ CONTROL
-let currentQuestions = [];
-let currentQuestionIndex = 0;
-let attempts = 0;
-let score = 0;
-let editingQuestion = null; // track editing
+let currentQuestions = [], currentQuestionIndex = 0, attempts = 0, score = 0, editingQuestion = null;
 
-// 📥 FETCH FUNCTIONS
 async function fetchSubjects() {
   const res = await fetch(`${BASE_URL}/api/subjects`);
   const subs = await res.json();
   subjectSelect.innerHTML = '<option value="">Select Subject</option>';
   subs.forEach(sub => {
-    const o = document.createElement('option');
-    o.value = sub;
-    o.innerText = sub;
-    subjectSelect.appendChild(o);
+    const opt = document.createElement('option');
+    opt.value = opt.innerText = sub;
+    subjectSelect.appendChild(opt);
   });
 }
 
-async function fetchChapters(subject) {
-  const res = await fetch(`${BASE_URL}/api/subjects/${subject}/chapters`);
-  return res.json();
+async function fetchChapters(sub) {
+  return (await fetch(`${BASE_URL}/api/subjects/${sub}/chapters`)).json();
 }
 
-async function fetchQuestions(subject, chapter) {
-  const res = await fetch(`${BASE_URL}/api/subjects/${subject}/chapters/${chapter}/questions`);
-  return res.json();
+async function fetchQuestions(sub, ch) {
+  return (await fetch(`${BASE_URL}/api/subjects/${sub}/chapters/${ch}/questions`)).json();
 }
 
-// 🧠 LOAD QUESTION
 function loadQuestion() {
   optionsEl.innerHTML = '';
   explanationText.style.display = 'none';
-
   if (currentQuestionIndex < currentQuestions.length) {
     const q = currentQuestions[currentQuestionIndex];
     questionEl.innerText = q.question;
-
     q.options.forEach(opt => {
       const div = document.createElement('div');
       div.classList.add('option');
       div.innerText = opt;
-      div.addEventListener('click', () => selectOption(div, q.correct, q.explanation));
+      div.onclick = () => selectOption(div, q.correct, q.explanation);
       optionsEl.appendChild(div);
     });
-
     deleteQuestionBtn.style.display = token ? 'inline-block' : 'none';
     editQuestionBtn.style.display = token ? 'inline-block' : 'none';
-
-    prevBtn.style.display = 'inline-block';
-    nextBtn.style.display = 'inline-block';
+    prevBtn.style.display = nextBtn.style.display = 'inline-block';
     scoreboardEl.innerText = `Score: ${score} | Attempts: ${attempts}`;
-    prevBtn.disabled = currentQuestionIndex <= 0;
-    nextBtn.disabled = currentQuestionIndex >= currentQuestions.length - 1;
+    prevBtn.disabled = currentQuestionIndex === 0;
+    nextBtn.disabled = currentQuestionIndex === currentQuestions.length - 1;
   } else {
     questionEl.innerText = "Quiz Completed!";
     optionsEl.innerHTML = '';
@@ -117,35 +96,20 @@ function loadQuestion() {
   }
 }
 
-// ✅ UPDATED SELECT OPTION FUNCTION
 function selectOption(el, correct, explanation) {
-  document.querySelectorAll('.option').forEach(opt => {
-    opt.style.pointerEvents = 'none';
-    if (opt.innerText.trim() === correct.trim()) {
-      opt.classList.add('correct');
-    } else {
-      opt.classList.add('wrong');
-    }
+  document.querySelectorAll('.option').forEach(o => {
+    o.style.pointerEvents = 'none';
+    o.innerText.trim() === correct.trim() ? o.classList.add('correct') : o.classList.add('wrong');
   });
-
-  if (el.innerText.trim() === correct.trim()) {
-    score++;
-  }
-
-  if (explanation && explanation.trim() !== "") {
+  if (el.innerText.trim() === correct.trim()) score++;
+  if (explanation?.trim()) {
     explanationText.innerText = `Explanation: ${explanation}`;
     explanationText.style.display = 'block';
-  } else {
-    explanationText.style.display = 'none';
   }
-
   attempts++;
   scoreboardEl.innerText = `Score: ${score} | Attempts: ${attempts}`;
 }
 
-// 🔀 NAVIGATION
-prevBtn.onclick = () => { if (currentQuestionIndex > 0) currentQuestionIndex-- && loadQuestion(); };
-nextBtn.onclick = () => { if (currentQuestionIndex < currentQuestions.length - 1) currentQuestionIndex++ && loadQuestion(); };
 restartBtn.onclick = () => {
   subjectSelect.value = '';
   chapterSelect.innerHTML = '<option value="">Select Chapter</option>';
@@ -155,178 +119,151 @@ restartBtn.onclick = () => {
   fetchSubjects();
 };
 
-// ➕ ADD/EDIT QUESTION
 addQuestionBtn.onclick = async () => {
   const payload = {
-    subject: newSubject.value.trim(),
-    chapter: newChapter.value.trim(),
-    question: newQuestion.value.trim(),
-    options: [option1.value.trim(), option2.value.trim(), option3.value.trim(), option4.value.trim()],
-    correct: correctAnswer.value.trim(),
-    explanation: answerExplanation.value.trim()
+    subject: newSubject.value.trim(), chapter: newChapter.value.trim(),
+    question: newQuestion.value.trim(), options: [option1.value.trim(), option2.value.trim(), option3.value.trim(), option4.value.trim()],
+    correct: correctAnswer.value.trim(), explanation: answerExplanation.value.trim()
   };
-  if (!payload.subject || !payload.chapter || !payload.question || payload.options.includes('') || !payload.correct) {
-    return alert('Please fill all required fields!');
-  }
-
+  if (!payload.subject || !payload.chapter || !payload.question || payload.options.includes('') || !payload.correct) return alert('Please fill inputs!');
   const method = editingQuestion ? 'PUT' : 'POST';
-  const url = editingQuestion
-    ? `${BASE_URL}/api/questions/${editingQuestion}`
-    : `${BASE_URL}/api/questions`;
-
+  const url = editingQuestion ? `${BASE_URL}/api/questions/${editingQuestion}` : `${BASE_URL}/api/questions`;
   const res = await fetch(url, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
-    },
+    method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify(payload)
   });
-  editingQuestion = null;
-  addQuestionBtn.innerText = 'Add Question';
-  const result = await res.json();
-  res.ok ? alert(method === 'POST' ? 'Question Added!' : 'Question Updated!') : alert(result.error || 'Operation failed');
+  const data = await res.json();
+  alert(res.ok ? (editingQuestion ? 'Question Updated!' : 'Question Added!') : (data.error || 'Failed'));
+  editingQuestion = null; addQuestionBtn.innerText = 'Add Question';
   [newSubject, newChapter, newQuestion, option1, option2, option3, option4, correctAnswer, answerExplanation].forEach(i => i.value = '');
   fetchSubjects();
 };
 
-// 🗑️ DELETE SUBJECT/CHAPTER/QUESTION
 deleteSubjectBtn.onclick = async () => {
-  const s = subjectSelect.value;
-  if (!s || !confirm(`Delete subject "${s}" and all its data?`)) return;
-  const res = await fetch(`${BASE_URL}/api/subjects/${s}`, {
-    method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
-  });
-  res.ok ? (alert('Subject Deleted!'), fetchSubjects()) : alert('Failed');
+  if (!subjectSelect.value || !confirm(`Delete subject "${subjectSelect.value}"?`)) return;
+  const res = await fetch(`${BASE_URL}/api/subjects/${subjectSelect.value}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  alert(res.ok ? 'Deleted!' : 'Failed');
+  fetchSubjects();
 };
 
 deleteChapterBtn.onclick = async () => {
-  const s = subjectSelect.value, c = chapterSelect.value;
-  if (!c || !confirm(`Delete chapter "${c}"?`)) return;
-  const res = await fetch(`${BASE_URL}/api/subjects/${s}/chapters/${c}`, {
-    method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
-  });
-  res.ok ? (alert('Chapter Deleted!'), subjectSelect.dispatchEvent(new Event('change'))) : alert('Failed');
+  if (!chapterSelect.value || !confirm(`Delete chapter "${chapterSelect.value}"?`)) return;
+  const url = `${BASE_URL}/api/subjects/${subjectSelect.value}/chapters/${chapterSelect.value}`;
+  const res = await fetch(url, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  alert(res.ok ? 'Deleted!' : 'Failed');
+  fetchSubjects();
+  subjectSelect.dispatchEvent(new Event('change'));
 };
 
 deleteQuestionBtn.onclick = async () => {
   const q = currentQuestions[currentQuestionIndex];
   if (!q || !confirm('Delete this question?')) return;
-  const res = await fetch(`${BASE_URL}/api/questions/${q._id}`, {
-    method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
-  });
-  res.ok ? (alert('Question Deleted!'), subjectSelect.dispatchEvent(new Event('change'))) : alert('Failed');
+  const res = await fetch(`${BASE_URL}/api/questions/${q._id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  alert(res.ok ? 'Deleted!' : 'Failed');
+  subjectSelect.dispatchEvent(new Event('change'));
 };
 
-// ✏️ EDIT QUESTION BUTTON
 editQuestionBtn.onclick = () => {
   const q = currentQuestions[currentQuestionIndex];
   editingQuestion = q._id;
   newSubject.value = subjectSelect.value;
   newChapter.value = chapterSelect.value;
   newQuestion.value = q.question;
-  [option1, option2, option3, option4].forEach((el, i) => el.value = q.options[i]);
+  [option1,option2,option3,option4].forEach((el,i) => el.value = q.options[i]);
   correctAnswer.value = q.correct;
   answerExplanation.value = q.explanation;
   addQuestionBtn.innerText = 'Save Edit';
 };
 
-// 🔐 ADMIN LOGIN / LOGOUT
 loginBtn.onclick = async () => {
   const res = await fetch(`${BASE_URL}/api/admin/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      username: usernameInput.value.trim(),
-      password: passwordInput.value.trim()
-    })
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: usernameInput.value.trim(), password: passwordInput.value.trim() })
   });
   const data = await res.json();
+  console.log('Login response:', data);
   if (res.ok) {
-    token = data.token;
-    isSupreme = data.supreme;
+    token = data.token; isSupreme = data.supreme;
     toggleAdmin(true);
-    alert('Admin Logged In ✔️');
+    alert('Logged in!');
   } else {
-    loginError.innerText = data.error || 'Login Failed ❌';
+    loginError.innerText = data.error || 'Failed';
   }
 };
 
 logoutBtn.onclick = () => {
-  token = null;
-  isSupreme = false;
+  token = null; isSupreme = false;
   toggleAdmin(false);
 };
 
-// 🧭 Toggle Admin UI
-function toggleAdmin(loggedIn) {
-  loginForm.style.display = loggedIn ? 'none' : 'block';
-  adminPanel.style.display = loggedIn ? 'block' : 'none';
-  logoutSection.style.display = loggedIn ? 'block' : 'none';
-  addNewAdminBtn.style.display = (loggedIn && isSupreme) ? 'inline-block' : 'none';
-  deleteSubjectBtn.style.display = (subjectSelect.value && loggedIn) ? 'inline-block' : 'none';
-  deleteChapterBtn.style.display = (chapterSelect.value && loggedIn) ? 'inline-block' : 'none';
-  deleteAdminSection.style.display = (loggedIn && isSupreme) ? 'block' : 'none';
-
-  if (loggedIn && isSupreme) loadAdminList();
-}
-
-// 🗂️ Load Admin List (Checkbox delete)
-async function loadAdminList() {
-  adminList.innerHTML = '';
+addNewAdminBtn.onclick = () => addAdminForm.style.display = 'block';
+cancelCreateAdminBtn.onclick = () => addAdminForm.style.display = 'none';
+createAdminBtn.onclick = async () => {
   const res = await fetch(`${BASE_URL}/api/admins`, {
-    headers: { Authorization: `Bearer ${token}` }
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ username: newAdminUsername.value.trim(), password: newAdminPassword.value.trim() })
   });
-  if (!res.ok) return;
-  const admins = await res.json();
-  admins
-    .filter(a => a.username !== usernameInput.value.trim()) // exclude self
-    .forEach(a => {
-      const li = document.createElement('li');
-      li.innerHTML = `<label><input type="checkbox" value="${a.username}"> ${a.username}</label>`;
-      adminList.appendChild(li);
-    });
-}
-
-deleteSelectedAdminsBtn.onclick = async () => {
-  const selected = [...adminList.querySelectorAll('input:checked')].map(i => i.value);
-  if (!selected.length || !confirm('Delete selected admins?')) return;
-  const res = await fetch(`${BASE_URL}/api/admins`, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ usernames: selected })
-  });
-  res.ok ? (alert('Admins Deleted!'), loadAdminList()) : alert('Failed');
+  const data = await res.json();
+  alert(res.ok ? 'Admin Created!' : (data.error || 'Failed'));
+  addAdminForm.style.display = 'none'; loadAdminList();
 };
 
-// 🧭 Subject / Chapter change handlers
-subjectSelect.onchange = async () => {
-  const s = subjectSelect.value;
-  chapterSelect.innerHTML = '<option value="">Select Chapter</option>';
-  chapterSelect.disabled = true;
-  deleteSubjectBtn.style.display = s && token ? 'inline-block' : 'none';
-  const chapters = await fetchChapters(s);
-  chapters.forEach(ch => {
-    const o = document.createElement('option');
-    o.value = ch;
-    o.innerText = ch;
-    chapterSelect.appendChild(o);
+deleteSelectedAdminsBtn.onclick = async () => {
+  const sel = [...adminList.querySelectorAll('input:checked')].map(c => c.value);
+  if (!sel.length || !confirm('Delete selected?')) return;
+  const res = await fetch(`${BASE_URL}/api/admins`, {
+    method: 'DELETE', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ usernames: sel })
   });
+  alert(res.ok ? 'Deleted!' : 'Failed');
+  loadAdminList();
+};
+
+async function loadAdminList() {
+  adminList.innerHTML = '';
+  const res = await fetch(`${BASE_URL}/api/admins`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) return;
+  const arr = await res.json();
+  arr.forEach(a => {
+    const li = document.createElement('li');
+    li.innerHTML = `<label><input type="checkbox" value="${a.username}"> ${a.username}</label>`;
+    adminList.appendChild(li);
+  });
+}
+
+function toggleAdmin(loggedIn) {
+  loginForm.style.display = loggedIn ? 'none' : 'block';
+  adminPanel.style.display = logoutSection.style.display = loggedIn ? 'block' : 'none';
+  addNewAdminBtn.style.display = (loggedIn && isSupreme) ? 'inline-block' : 'none';
+  deleteAdminSection.style.display = (loggedIn && isSupreme) ? 'block' : 'none';
+
+  deleteSubjectBtn.style.display = subjectSelect.value && loggedIn ? 'inline-block' : 'none';
+  deleteChapterBtn.style.display = chapterSelect.value && loggedIn ? 'inline-block' : 'none';
+
+  fetchSubjects();
+}
+
+subjectSelect.onchange = async () => {
+  deleteSubjectBtn.style.display = subjectSelect.value && token ? 'inline-block' : 'none';
+  const chaps = await fetchChapters(subjectSelect.value);
   chapterSelect.disabled = false;
+  chapterSelect.innerHTML = '<option>Select Chapter</option>';
+  chaps.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = opt.innerText = c;
+    chapterSelect.appendChild(opt);
+  });
 };
 
 chapterSelect.onchange = async () => {
   deleteChapterBtn.style.display = chapterSelect.value && token ? 'inline-block' : 'none';
   currentQuestions = await fetchQuestions(subjectSelect.value, chapterSelect.value);
-  currentQuestionIndex = 0;
-  attempts = 0;
-  score = 0;
+  currentQuestionIndex = attempts = score = 0;
   quizArea.style.display = 'block';
   restartBtn.style.display = 'inline-block';
   loadQuestion();
 };
 
-// 🧠 INIT
 window.onload = () => {
   fetchSubjects();
   toggleAdmin(false);
